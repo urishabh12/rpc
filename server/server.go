@@ -88,7 +88,6 @@ func (s *Server) handleConn(conn net.Conn) {
 		if !ok {
 			conn.Write(makeError("function does not exists"))
 			logger("function does not exists")
-			break
 		}
 
 		r := s.callableFunc[funcName].Call([]reflect.Value{reflect.ValueOf(input)})
@@ -101,7 +100,6 @@ func (s *Server) handleConn(conn net.Conn) {
 		if err != nil {
 			fmt.Println("[LOG] ", err.Error())
 		}
-		break
 	}
 }
 
