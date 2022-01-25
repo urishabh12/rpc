@@ -53,5 +53,5 @@ func (c *Client) Close() {
 }
 
 func makeRequest(funcName string, data string) []byte {
-	return util.Payload([]byte(funcName + delim + data))
+	return util.Write([]byte(funcName + delim + data))
 }

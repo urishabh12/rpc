@@ -10,7 +10,7 @@ const (
 	headerLen = 4
 )
 
-func Payload(data []byte) []byte {
+func Write(data []byte) []byte {
 	d := make([]byte, headerLen+len(data))
 	binary.BigEndian.PutUint32(d[:headerLen], uint32(len(data)))
 	copy(d[headerLen:], data)

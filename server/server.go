@@ -104,11 +104,11 @@ func (s *Server) handleConn(conn net.Conn) {
 }
 
 func makeResponse(s string) []byte {
-	return util.Payload([]byte(s))
+	return util.Write([]byte(s))
 }
 
 func makeError(err string) []byte {
-	return util.Payload([]byte(" " + delim + err))
+	return util.Write([]byte(" " + delim + err))
 }
 
 func getParams(in []string) (string, string) {
