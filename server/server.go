@@ -75,7 +75,7 @@ func (s *Server) handleConn(conn net.Conn) {
 		sData := string(data)
 		inputs := strings.Split(sData, "\n")
 
-		logger("new request received ")
+		logger("new request received from " + conn.RemoteAddr().String())
 		if len(inputs) != 2 {
 			conn.Write(makeError("more than 2 parameters"))
 			continue
