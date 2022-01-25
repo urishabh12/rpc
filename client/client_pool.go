@@ -42,10 +42,16 @@ func NewClientPool(addr string, poolSize uint) (*ClientPool, error) {
 //Calling function is responsible for goroutine as not using channel for communication
 func (c *ClientPool) Call(funcName string, data string) (string, error) {
 	//Get lock for next connection in pool
-	currInd := c.lastIndex + 1
+	var currInd int
+	if c.lastIndex == len(c.connArr)-1 {
+		currInd = 0
+	} else {
+		currInd = c.lastIndex + 1
+	}
+
 	c.locks[currInd].Lock()
 	defer c.locks[currInd].Unlock()
-	c.lastIndex++
+	c.lastIndex = currInd
 
 	fmt.Println("[LOG] Calling ", funcName)
 	_, err := c.connArr[currInd].Write(makeRequest(funcName, data))
