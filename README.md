@@ -21,7 +21,7 @@ func main() {
 
 ## Client Example
 ```
-c, err := client.NewClient("localhost:8085")
+c, err := client.NewClient("localhost:9000")
 if err != nil {
 	panic(err)
 }
@@ -36,7 +36,7 @@ if err != nil {
 
 ## Client Pool Example
 ```
-c, err := client.NewClientPool("localhost:8085", 2)
+c, err := client.NewClientPool("localhost:9000", 2)
 if err != nil {
 	panic(err)
 }
