@@ -47,8 +47,8 @@ func (c *Client) Call(funcName string, data string) (string, error) {
 	return resp[0], nil
 }
 
-func (c *Client) Close() {
-	c.conn.Close()
+func (c *Client) Close() error {
+	return c.conn.Close()
 }
 
 func makeRequest(funcName string, data string) []byte {
