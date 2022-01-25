@@ -10,8 +10,7 @@ import (
 )
 
 const (
-	delim     = "\n"
-	headerLen = 4
+	delim = "\n"
 )
 
 type Client struct {

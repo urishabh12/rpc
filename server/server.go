@@ -13,7 +13,6 @@ import (
 const (
 	defaultPort = ":8085"
 	delim       = "\n"
-	headerLen   = 4
 )
 
 type Server struct {
