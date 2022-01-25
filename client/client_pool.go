@@ -14,8 +14,11 @@ type ClientPool struct {
 	connArr   []net.Conn
 	locks     []sync.Mutex
 	lastIndex int
+	//This is added have pure round robin (TODO will think of a better approach later)
+	lastIndexLock sync.Mutex
 }
 
+//Client pool works in round robin
 //Max pool size 100
 func NewClientPool(addr string, poolSize uint) (*ClientPool, error) {
 	if poolSize > 100 {
@@ -41,7 +44,6 @@ func NewClientPool(addr string, poolSize uint) (*ClientPool, error) {
 
 //Calling function is responsible for goroutine as not using channel for communication
 func (c *ClientPool) Call(funcName string, data string) (string, error) {
-	//Get lock for next connection in pool
 	var currInd int
 	if c.lastIndex == len(c.connArr)-1 {
 		currInd = 0
@@ -49,9 +51,14 @@ func (c *ClientPool) Call(funcName string, data string) (string, error) {
 		currInd = c.lastIndex + 1
 	}
 
+	//This will help in implementing round robin
+	c.lastIndexLock.Lock()
+	c.lastIndex = currInd
+	c.lastIndexLock.Unlock()
+
+	//Get lock for next connection in pool
 	c.locks[currInd].Lock()
 	defer c.locks[currInd].Unlock()
-	c.lastIndex = currInd
 
 	fmt.Println("[LOG] Calling ", funcName)
 	_, err := c.connArr[currInd].Write(makeRequest(funcName, data))
