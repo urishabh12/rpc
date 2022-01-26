@@ -8,8 +8,8 @@ type Test struct {
 	Name string
 }
 
-func (t Test) GetMyName(name string) string {
-	return "Hello " + name
+func (t Test) GetMyName(name []byte) string {
+	return "Hello " + string(name)
 }
 
 func main() {

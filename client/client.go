@@ -1,10 +1,8 @@
 package client
 
 import (
-	"errors"
 	"fmt"
 	"net"
-	"strings"
 
 	"github.com/urishabh12/rpc/util"
 )
@@ -26,25 +24,19 @@ func NewClient(addr string) (*Client, error) {
 	return &Client{conn: conn}, nil
 }
 
-func (c *Client) Call(funcName string, data string) (string, error) {
-	fmt.Println("[LOG] Calling ", funcName)
+func (c *Client) Call(funcName string, data string) ([]byte, error) {
+	logger("Calling " + funcName)
 	_, err := c.conn.Write(makeRequest(funcName, data))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	dt, err := util.Read(c.conn)
+	respData, err := util.Read(c.conn)
 	if err != nil {
-		return "", err
-	}
-	sDt := string(dt)
-	resp := strings.Split(sDt, "\n")
-
-	if len(resp) != 1 {
-		return "", errors.New("less or more than 1 string in response")
+		return nil, err
 	}
 
-	return resp[0], nil
+	return respData, nil
 }
 
 func (c *Client) Close() error {
@@ -53,4 +45,8 @@ func (c *Client) Close() error {
 
 func makeRequest(funcName string, data string) []byte {
 	return util.Write([]byte(funcName + delim + data))
+}
+
+func logger(text string) {
+	fmt.Println("[LOG] " + text)
 }

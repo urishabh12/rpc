@@ -1,11 +1,11 @@
 package server
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net"
 	"reflect"
-	"strings"
 
 	"github.com/urishabh12/rpc/util"
 )
@@ -72,24 +72,23 @@ func (s *Server) handleConn(conn net.Conn) {
 			}
 			continue
 		}
-		sData := string(data)
-		inputs := strings.Split(sData, "\n")
 
-		logger("new request received from " + conn.RemoteAddr().String())
-		if len(inputs) != 2 {
-			conn.Write(makeError("more than 2 parameters"))
+		logger("request received from " + conn.RemoteAddr().String())
+
+		byteInputs := bytes.Split(data, []byte(delim))
+		if len(byteInputs) != 2 {
+			conn.Write(makeError("more or less than 2 parameters"))
 			continue
 		}
 
-		funcName, input := getParams(inputs)
+		funcName := getFuncName(byteInputs[0])
 		_, ok := s.callableFunc[funcName]
-
 		if !ok {
 			conn.Write(makeError("function does not exists"))
 			logger("function does not exists")
 		}
 
-		r := s.callableFunc[funcName].Call([]reflect.Value{reflect.ValueOf(input)})
+		r := s.callableFunc[funcName].Call([]reflect.Value{reflect.ValueOf(byteInputs[1])})
 		if len(r) != 1 {
 			conn.Write(makeError("return values more or less than 1"))
 			continue
@@ -97,7 +96,7 @@ func (s *Server) handleConn(conn net.Conn) {
 
 		_, err = conn.Write(makeResponse(r[0].String()))
 		if err != nil {
-			fmt.Println("[LOG] ", err.Error())
+			logger(err.Error())
 		}
 	}
 }
@@ -110,8 +109,8 @@ func makeError(err string) []byte {
 	return util.Write([]byte(" " + delim + err))
 }
 
-func getParams(in []string) (string, string) {
-	return in[0], in[1]
+func getFuncName(funcName []byte) string {
+	return string(funcName)
 }
 
 func logger(text string) {
