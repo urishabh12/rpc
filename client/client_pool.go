@@ -5,6 +5,7 @@ import (
 	"net"
 	"sync"
 
+	e "github.com/urishabh12/rpc/errors"
 	"github.com/urishabh12/rpc/util"
 )
 
@@ -60,12 +61,12 @@ func (c *ClientPool) Call(funcName string, data string) ([]byte, error) {
 	logger("Calling " + funcName)
 	_, err := c.connArr[currInd].Write(makeRequest(funcName, data))
 	if err != nil {
-		return nil, err
+		return nil, e.NewConnClosedError()
 	}
 
 	respData, err := util.Read(c.connArr[currInd])
 	if err != nil {
-		return nil, err
+		return nil, e.NewConnClosedError()
 	}
 
 	return respData, nil
