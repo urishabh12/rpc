@@ -1,6 +1,6 @@
-# rpc
+# Go RPC
 
-A simple rpc implementation in GO which only accepts byte array as input parameters
+A simple rpc implementation in GO which accepts byte array as input parameters
 
 ## Server Example
 ```
