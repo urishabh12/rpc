@@ -16,11 +16,23 @@ const (
 
 type Server struct {
 	callableFunc map[string]reflect.Value
+	listener     net.Listener
 }
 
-func NewServer(f interface{}) *Server {
+func NewServer(f interface{}, port string) (*Server, error) {
+	if port == "" {
+		port = defaultPort
+	}
+
+	l, err := net.Listen("tcp", port)
+	if err != nil {
+		return nil, err
+	}
+	logger("server started on port " + port)
+
 	s := &Server{
 		callableFunc: make(map[string]reflect.Value),
+		listener:     l,
 	}
 	//Get all the function by name and map it to reflect.Method
 	ref := reflect.ValueOf(f)
@@ -31,28 +43,19 @@ func NewServer(f interface{}) *Server {
 		logger("function resgistered " + name)
 	}
 
-	return s
+	return s, nil
 }
 
 //Starts the server, accepts port number if empty sets default port 8085
-func (s *Server) Start(port string) error {
-	if port == "" {
-		port = defaultPort
-	}
-
-	l, err := net.Listen("tcp", port)
-	if err != nil {
-		return err
-	}
-
-	logger("server started on port " + port)
+func (s *Server) Start() error {
 	for {
-		conn, err := l.Accept()
+		conn, err := s.listener.Accept()
 		if err != nil {
-			fmt.Println(err)
+			logger(err.Error())
+			return err
 		}
 
-		logger("New connection " + conn.RemoteAddr().String())
+		logger("new connection " + conn.RemoteAddr().String())
 		//create a copy and send the conn
 		go func() {
 			s.handleConn(conn)
@@ -93,7 +96,7 @@ func (s *Server) handleConn(conn net.Conn) {
 			continue
 		}
 
-		_, err = conn.Write(makeResponse(r[0].String()))
+		_, err = conn.Write(util.Write(r[0].Bytes()))
 		if err != nil {
 			logger(err.Error())
 			logger("closing connection " + conn.RemoteAddr().String())
@@ -102,8 +105,8 @@ func (s *Server) handleConn(conn net.Conn) {
 	}
 }
 
-func makeResponse(s string) []byte {
-	return util.Write([]byte(s))
+func (s *Server) Close() {
+	s.listener.Close()
 }
 
 //TODO make error handling better

@@ -14,6 +14,6 @@ func (t Test) GetMyName(name []byte) string {
 
 func main() {
 	te := Test{}
-	s := server.NewServer(te)
-	s.Start("")
+	s, _ := server.NewServer(te, "")
+	s.Start()
 }
