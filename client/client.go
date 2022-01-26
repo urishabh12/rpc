@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 
-	e "github.com/urishabh12/rpc/errors"
 	"github.com/urishabh12/rpc/util"
 )
 
@@ -30,13 +29,13 @@ func (c *Client) Call(funcName string, data string) ([]byte, error) {
 	_, err := c.conn.Write(makeRequest(funcName, data))
 	if err != nil {
 		c.Close()
-		return nil, e.NewConnClosedError()
+		return nil, err
 	}
 
 	respData, err := util.Read(c.conn)
 	if err != nil {
 		c.Close()
-		return nil, e.NewConnClosedError()
+		return nil, err
 	}
 
 	return respData, nil
