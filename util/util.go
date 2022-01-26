@@ -4,11 +4,14 @@ import (
 	"encoding/binary"
 	"io"
 	"net"
+	"time"
 )
 
 const (
 	headerLen = 4
 )
+
+var timeoutLength int64 = 60000
 
 func Write(data []byte) []byte {
 	d := make([]byte, headerLen+len(data))
@@ -19,6 +22,8 @@ func Write(data []byte) []byte {
 }
 
 func Read(conn net.Conn) ([]byte, error) {
+	currTime := time.Now().UnixMilli()
+	conn.SetReadDeadline(time.UnixMilli(currTime + timeoutLength))
 	header := make([]byte, headerLen)
 	_, err := io.ReadFull(conn, header)
 	if err != nil {

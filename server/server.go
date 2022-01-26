@@ -3,7 +3,6 @@ package server
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"net"
 	"reflect"
 
@@ -66,11 +65,9 @@ func (s *Server) handleConn(conn net.Conn) {
 	for {
 		data, err := util.Read(conn)
 		if err != nil {
-			if err == io.EOF {
-				logger("closing connection " + conn.RemoteAddr().String())
-				break
-			}
-			continue
+			logger(err.Error())
+			logger("closing connection " + conn.RemoteAddr().String())
+			break
 		}
 
 		logger("request received from " + conn.RemoteAddr().String())
@@ -99,6 +96,7 @@ func (s *Server) handleConn(conn net.Conn) {
 		_, err = conn.Write(makeResponse(r[0].String()))
 		if err != nil {
 			logger(err.Error())
+			logger("closing connection " + conn.RemoteAddr().String())
 			break
 		}
 	}

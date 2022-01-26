@@ -2,9 +2,7 @@ package client
 
 import (
 	"errors"
-	"fmt"
 	"net"
-	"strings"
 	"sync"
 
 	"github.com/urishabh12/rpc/util"
@@ -43,7 +41,7 @@ func NewClientPool(addr string, poolSize uint) (*ClientPool, error) {
 }
 
 //Calling function is responsible for goroutine as not using channel for communication
-func (c *ClientPool) Call(funcName string, data string) (string, error) {
+func (c *ClientPool) Call(funcName string, data string) ([]byte, error) {
 	var currInd int
 	//This will help in implementing round robin
 	c.lastIndexLock.Lock()
@@ -59,24 +57,18 @@ func (c *ClientPool) Call(funcName string, data string) (string, error) {
 	c.locks[currInd].Lock()
 	defer c.locks[currInd].Unlock()
 
-	fmt.Println("[LOG] Calling ", funcName)
+	logger("Calling " + funcName)
 	_, err := c.connArr[currInd].Write(makeRequest(funcName, data))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	dt, err := util.Read(c.connArr[currInd])
+	respData, err := util.Read(c.connArr[currInd])
 	if err != nil {
-		return "", err
-	}
-	sDt := string(dt)
-	resp := strings.Split(sDt, "\n")
-
-	if len(resp) != 1 {
-		return "", errors.New("less or more than 1 string in response")
+		return nil, err
 	}
 
-	return resp[0], nil
+	return respData, nil
 }
 
 //This will close all connection
