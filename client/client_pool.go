@@ -45,14 +45,13 @@ func NewClientPool(addr string, poolSize uint) (*ClientPool, error) {
 //Calling function is responsible for goroutine as not using channel for communication
 func (c *ClientPool) Call(funcName string, data string) (string, error) {
 	var currInd int
+	//This will help in implementing round robin
+	c.lastIndexLock.Lock()
 	if c.lastIndex == len(c.connArr)-1 {
 		currInd = 0
 	} else {
 		currInd = c.lastIndex + 1
 	}
-
-	//This will help in implementing round robin
-	c.lastIndexLock.Lock()
 	c.lastIndex = currInd
 	c.lastIndexLock.Unlock()
 
