@@ -61,8 +61,10 @@ for i := 0; i < len(names); i++ {
 wg.Wait()
 ```
 
+##
+
 ## Communication Protocol
-Communication happens over TCP each payload has 2 parts the header and data. **Header** has the length of the data and **Data** this depends upon request and response.
+Communication happens over TCP each payload has 2 parts the header and data. **Header** has the length of the data and **Data** this depends upon request and response. Server waits for 60 seconds if no request is received it will close the connection. Client sends heartbeat every 40 seconds
 
 ### Request Data
 This has 2 parts first the function name which is called and second the input parameter.
