@@ -66,9 +66,9 @@ func (s *Server) handleConn(conn net.Conn) {
 	for {
 		data, err := util.Read(conn)
 		if err != nil {
-			if err != io.EOF {
-				conn.Write(makeError(err.Error()))
-				continue
+			if err == io.EOF {
+				logger("closing connection " + conn.RemoteAddr().String())
+				break
 			}
 			continue
 		}
@@ -81,6 +81,7 @@ func (s *Server) handleConn(conn net.Conn) {
 			continue
 		}
 
+		//Get Func name from byte array
 		funcName := getFuncName(byteInputs[0])
 		_, ok := s.callableFunc[funcName]
 		if !ok {
@@ -88,6 +89,7 @@ func (s *Server) handleConn(conn net.Conn) {
 			logger("function does not exists")
 		}
 
+		//Call the function
 		r := s.callableFunc[funcName].Call([]reflect.Value{reflect.ValueOf(byteInputs[1])})
 		if len(r) != 1 {
 			conn.Write(makeError("return values more or less than 1"))
@@ -97,6 +99,7 @@ func (s *Server) handleConn(conn net.Conn) {
 		_, err = conn.Write(makeResponse(r[0].String()))
 		if err != nil {
 			logger(err.Error())
+			break
 		}
 	}
 }
@@ -105,6 +108,7 @@ func makeResponse(s string) []byte {
 	return util.Write([]byte(s))
 }
 
+//TODO make error handling better
 func makeError(err string) []byte {
 	return util.Write([]byte(" " + delim + err))
 }

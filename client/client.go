@@ -2,8 +2,10 @@ package client
 
 import (
 	"fmt"
+	"io"
 	"net"
 
+	e "github.com/urishabh12/rpc/errors"
 	"github.com/urishabh12/rpc/util"
 )
 
@@ -28,6 +30,10 @@ func (c *Client) Call(funcName string, data string) ([]byte, error) {
 	logger("Calling " + funcName)
 	_, err := c.conn.Write(makeRequest(funcName, data))
 	if err != nil {
+		if err == io.EOF {
+			c.Close()
+			return nil, e.NewConnClosedError()
+		}
 		return nil, err
 	}
 
