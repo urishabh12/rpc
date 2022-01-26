@@ -1,6 +1,6 @@
 # rpc
 
-A simple rpc implementation in GO which only accepts string as input parameters
+A simple rpc implementation in GO which only accepts byte array as input parameters
 
 ## Server Example
 ```
@@ -8,8 +8,8 @@ type Test struct {
 	Name string
 }
 
-func (t Test) GetMyName(name string) string {
-	return "Hello " + name
+func (t Test) GetMyName(name []byte) string {
+	return "Hello " + string(name)
 }
 
 func main() {
@@ -53,7 +53,7 @@ for i := 0; i < len(names); i++ {
 			panic(err)
 		}
 
-		fmt.Println(resp)
+		fmt.Println(string(resp))
 		wg.Done()
 	}(i)
 }
