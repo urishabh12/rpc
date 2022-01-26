@@ -13,7 +13,7 @@ const (
 	delim = "\n"
 )
 
-var heartBeatTime int64 = 30
+var heartbeatTime int64 = 40
 
 type Client struct {
 	conn net.Conn
@@ -35,13 +35,11 @@ func (c *Client) Call(funcName string, data string) ([]byte, error) {
 	logger("Calling " + funcName)
 	_, err := c.conn.Write(makeRequest(funcName, data))
 	if err != nil {
-		c.Close()
 		return nil, e.NewConnClosedError()
 	}
 
 	respData, err := util.Read(c.conn)
 	if err != nil {
-		c.Close()
 		return nil, e.NewConnClosedError()
 	}
 
@@ -53,8 +51,10 @@ func (c *Client) Close() error {
 }
 
 func (c *Client) heartBeat() {
-	time.Sleep(time.Second * time.Duration(heartBeatTime))
-	c.conn.Write(util.Write([]byte("")))
+	for {
+		time.Sleep(time.Second * time.Duration(heartbeatTime))
+		c.conn.Write(util.Write([]byte("")))
+	}
 }
 
 func makeRequest(funcName string, data string) []byte {

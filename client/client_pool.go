@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net"
 	"sync"
+	"time"
 
 	e "github.com/urishabh12/rpc/errors"
 	"github.com/urishabh12/rpc/util"
@@ -36,6 +37,7 @@ func NewClientPool(addr string, poolSize uint) (*ClientPool, error) {
 		}
 
 		resp.connArr = append(resp.connArr, conn)
+		go resp.heartBeat(i)
 	}
 
 	return resp, nil
@@ -84,4 +86,14 @@ func (c *ClientPool) Close() error {
 	}
 
 	return nil
+}
+
+func (c *ClientPool) heartBeat(index int) {
+	for {
+		time.Sleep(time.Second * time.Duration(heartbeatTime))
+		_, err := c.connArr[index].Write(util.Write([]byte("")))
+		if err != nil {
+			break
+		}
+	}
 }

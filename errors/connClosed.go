@@ -1,7 +1,7 @@
 package erros
 
 const (
-	connectionClosed = "connection has been closed"
+	connectionClosed = "connection has been closed by server"
 )
 
 type ConnClosedError struct{}
