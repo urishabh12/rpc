@@ -93,6 +93,7 @@ func (s *Server) handleConn(conn net.Conn) {
 		if !ok {
 			conn.Write(makeError("function does not exists"))
 			logger("function does not exists")
+			continue
 		}
 
 		//Call the function
