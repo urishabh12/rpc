@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/binary"
+	"encoding/json"
 	"io"
 	"net"
 	"time"
@@ -12,6 +13,43 @@ const (
 )
 
 var timeoutLength int64 = 60000
+
+//For sending and receiving heartbeat
+type Heartbeat struct {
+	IsHeartBeat bool
+}
+
+func GetSerializedNewHeartbeat() ([]byte, error) {
+	h := Heartbeat{
+		IsHeartBeat: true,
+	}
+	data, err := json.Marshal(h)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+func GetHeartbeatFromSerializedByte(data []byte) (Heartbeat, error) {
+	var h Heartbeat
+	err := json.Unmarshal(data, &h)
+	if err != nil {
+		return h, err
+	}
+
+	return h, nil
+}
+
+//For sending receiving error
+type Err struct {
+	Message string
+}
+
+//To support error interface
+func (e Err) Error() string {
+	return e.Message
+}
 
 func Write(data []byte) []byte {
 	d := make([]byte, headerLen+len(data))

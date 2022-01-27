@@ -53,7 +53,13 @@ func (c *Client) Close() error {
 func (c *Client) heartBeat() {
 	for {
 		time.Sleep(time.Second * time.Duration(heartbeatTime))
-		_, err := c.conn.Write(util.Write([]byte("")))
+		data, err := util.GetSerializedNewHeartbeat()
+		//this can get into continuos loop if error occurs
+		if err != nil {
+			logError(err.Error())
+			continue
+		}
+		_, err = c.conn.Write(util.Write(data))
 		if err != nil {
 			break
 		}
@@ -66,4 +72,8 @@ func makeRequest(funcName string, data string) []byte {
 
 func logger(text string) {
 	fmt.Println("[LOG] " + text)
+}
+
+func logError(text string) {
+	fmt.Println("[ERROR] " + text)
 }

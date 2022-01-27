@@ -75,6 +75,12 @@ func (s *Server) handleConn(conn net.Conn) {
 
 		logger("request received from " + conn.RemoteAddr().String())
 
+		//Check for heartbeat no response to be sent if it's heartbeat
+		heartBeat, _ := util.GetHeartbeatFromSerializedByte(data)
+		if heartBeat.IsHeartBeat {
+			continue
+		}
+
 		byteInputs := bytes.Split(data, []byte(delim))
 		if len(byteInputs) != 2 {
 			conn.Write(makeError("more or less than 2 parameters"))

@@ -91,7 +91,14 @@ func (c *ClientPool) Close() error {
 func (c *ClientPool) heartBeat(index int) {
 	for {
 		time.Sleep(time.Second * time.Duration(heartbeatTime))
-		_, err := c.connArr[index].Write(util.Write([]byte("")))
+		data, err := util.GetSerializedNewHeartbeat()
+		//this can get into continuos loop if error occurs
+		if err != nil {
+			logError(err.Error())
+			continue
+		}
+
+		_, err = c.connArr[index].Write(util.Write(data))
 		if err != nil {
 			break
 		}
