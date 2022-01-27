@@ -117,7 +117,8 @@ func (s *Server) Close() {
 
 //TODO make error handling better
 func makeError(err string) []byte {
-	return util.Write([]byte(" " + delim + err))
+	data, _ := util.GetSerializedErr(err)
+	return util.Write([]byte(data))
 }
 
 func getFuncName(funcName []byte) string {

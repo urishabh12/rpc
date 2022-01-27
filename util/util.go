@@ -44,11 +44,35 @@ func GetHeartbeatFromSerializedByte(data []byte) (Heartbeat, error) {
 //For sending receiving error
 type Err struct {
 	Message string
+	IsErr   bool
 }
 
 //To support error interface
 func (e Err) Error() string {
 	return e.Message
+}
+
+func GetSerializedErr(text string) ([]byte, error) {
+	e := Err{
+		Message: text,
+		IsErr:   true,
+	}
+	data, err := json.Marshal(e)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, err
+}
+
+func GetErrFromSerializedByte(data []byte) (Err, error) {
+	var er Err
+	err := json.Unmarshal(data, &er)
+	if err != nil {
+		return er, err
+	}
+
+	return er, nil
 }
 
 func Write(data []byte) []byte {

@@ -71,6 +71,12 @@ func (c *ClientPool) Call(funcName string, data string) ([]byte, error) {
 		return nil, e.NewConnClosedError()
 	}
 
+	//Check for error
+	serverErr, _ := util.GetErrFromSerializedByte(respData)
+	if serverErr.IsErr {
+		return nil, serverErr
+	}
+
 	return respData, nil
 }
 
