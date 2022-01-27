@@ -53,7 +53,10 @@ func (c *Client) Close() error {
 func (c *Client) heartBeat() {
 	for {
 		time.Sleep(time.Second * time.Duration(heartbeatTime))
-		c.conn.Write(util.Write([]byte("")))
+		_, err := c.conn.Write(util.Write([]byte("")))
+		if err != nil {
+			break
+		}
 	}
 }
 
