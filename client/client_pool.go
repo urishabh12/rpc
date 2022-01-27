@@ -11,10 +11,9 @@ import (
 )
 
 type ClientPool struct {
-	connArr   []net.Conn
-	locks     []sync.Mutex
-	lastIndex int
-	//This is added have pure round robin (TODO will think of a better approach later)
+	connArr       []net.Conn
+	locks         []sync.Mutex
+	lastIndex     int
 	lastIndexLock sync.Mutex
 }
 
@@ -104,9 +103,12 @@ func (c *ClientPool) heartBeat(index int) {
 			continue
 		}
 
+		c.locks[index].Lock()
 		_, err = c.connArr[index].Write(util.Write(data))
 		if err != nil {
+			c.locks[index].Unlock()
 			break
 		}
+		c.locks[index].Unlock()
 	}
 }
